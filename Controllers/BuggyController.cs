@@ -10,7 +10,7 @@ namespace API.Controllers
             return NotFound();
         }
 
-        [HttpGet("bar-request")]
+        [HttpGet("bad-request")]
         public ActionResult GetBadRequest()
         {
             return BadRequest(new ProblemDetails { Title = "This is a bad request" });
