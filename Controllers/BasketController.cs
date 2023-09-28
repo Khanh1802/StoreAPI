@@ -1,5 +1,7 @@
 ﻿using API.Data;
+using API.Dtos;
 using API.Entities;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,14 +10,16 @@ namespace API.Controllers
     public class BasketController : BaseApiController
     {
         private readonly StoreContext _storeContext;
+        private readonly IMapper _mapper;
 
-        public BasketController(StoreContext storeContext)
+        public BasketController(StoreContext storeContext, IMapper mapper)
         {
             _storeContext = storeContext;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<Basket>> GetBasket()
+        public async Task<ActionResult<BasketDto>> GetBasket()
         {
             var basket = RetrieveBasket();
 
@@ -23,7 +27,9 @@ namespace API.Controllers
             {
                 return NotFound();
             }
-            return basket;
+            var basketDto = _mapper.Map<Basket,BasketDto>(basket);
+
+            return basketDto;
         }
 
         [HttpPost]
@@ -60,9 +66,23 @@ namespace API.Controllers
         public async Task<ActionResult> DeleteBasketItem(Guid productId, int quantity)
         {
             //Get basket
+            var basket = RetrieveBasket();
+            if(basket == null)
+            {
+                return NotFound();
+            }
             //Remove basket or reduce quantity
+            basket.DeleteItem(productId, quantity);
             //Save change
-            return Ok();
+            var result = await _storeContext.SaveChangesAsync() > 0;
+            if (result)
+            {
+                return StatusCode(200);
+            }
+            return BadRequest(new ProblemDetails()
+            {
+                Title = "Problem update || remove item to basket"
+            });
         }
 
         private Basket RetrieveBasket()

@@ -29,13 +29,13 @@ namespace API.Entities
         }
         public void DeleteItem(Guid productId, int quantity)
         {
-            var product = Items.FirstOrDefault(x => x.ProductId == productId);
-            if (product != null)
+            var basketItem = Items.FirstOrDefault(x => x.ProductId == productId);
+            if (basketItem != null)
             {
-                product.Quantity -= quantity;
-                if(product.Quantity == 0)
+                basketItem.Quantity -= quantity;
+                if(basketItem.Quantity == 0)
                 {
-                    Items.Remove(product);
+                    Items.Remove(basketItem);
                 }
             }
         }

@@ -1,5 +1,6 @@
 using API.Data;
 using API.Middleware;
+using API.Profiles;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
+
+builder.Services.AddAutoMapper(typeof(BasketProfile));
 
 var app = builder.Build();
 
