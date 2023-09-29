@@ -99,7 +99,7 @@ namespace API.Controllers
             //Create Coockie
             var coockieOptions = new CookieOptions()
             {
-                Expires = DateTime.Now.AddDays(1),
+                Expires = DateTime.Now.AddDays(3),
                 IsEssential = true,
             };
             //because we're inside a controller, we have access to the Http response we're going to send back
