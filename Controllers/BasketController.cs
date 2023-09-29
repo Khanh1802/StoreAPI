@@ -18,7 +18,7 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "GetBasket")]
         public async Task<ActionResult<BasketDto>> GetBasket()
         {
             var basket = RetrieveBasket();
@@ -27,13 +27,13 @@ namespace API.Controllers
             {
                 return NotFound();
             }
-            var basketDto = _mapper.Map<Basket,BasketDto>(basket);
+            var basketDto = _mapper.Map<Basket, BasketDto>(basket);
 
             return basketDto;
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostItemToBasket(Guid productId, int quantity)
+        public async Task<ActionResult<BasketDto>> PostItemToBasket(Guid productId, int quantity)
         {
             //Get basket
             var basket = RetrieveBasket();
@@ -53,7 +53,7 @@ namespace API.Controllers
             var result = await _storeContext.SaveChangesAsync() > 0;
             if (result)
             {
-                return StatusCode(201);
+                return CreatedAtRoute("GetBasket", _mapper.Map<Basket, BasketDto>(basket));
             }
             return BadRequest(new ProblemDetails()
             {
@@ -67,7 +67,7 @@ namespace API.Controllers
         {
             //Get basket
             var basket = RetrieveBasket();
-            if(basket == null)
+            if (basket == null)
             {
                 return NotFound();
             }

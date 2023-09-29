@@ -32,7 +32,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors(opt =>
 {
     //AllowAnyHeader => từ client to server,AllowAnyMethod => get/put/post/delete
-    opt.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+    //AllowCredentials => allow our client to pass the cookie backwards and forwards from our API server
+    opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:3000");
 });
 app.UseHttpsRedirection();
 
