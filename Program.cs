@@ -1,4 +1,6 @@
 using API.Data;
+using API.Middleware;
+using API.Profiles;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +15,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors();
+
+builder.Services.AddAutoMapper(typeof(BasketProfile));
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionMiddleware>(); 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -23,6 +29,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(opt =>
+{
+    //AllowAnyHeader => từ client to server,AllowAnyMethod => get/put/post/delete
+    //AllowCredentials => allow our client to pass the cookie backwards and forwards from our API server
+    opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:3000");
+});
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
