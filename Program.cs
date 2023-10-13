@@ -2,12 +2,18 @@ using API.Data;
 using API.Entities;
 using API.Middleware;
 using API.Profiles;
+using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<TokenService>();
+
 builder.Services.AddDbContext<StoreContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -24,10 +30,25 @@ builder.Services.AddIdentityCore<User>(opt =>
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<StoreContext>();
-builder.Services.AddAuthentication();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
+    {
+        opt.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey =new SymmetricSecurityKey(Encoding.UTF8
+            .GetBytes(builder.Configuration["JWTSetting:TokenKey"]))
+        };
+    });
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(typeof(BasketProfile));
+builder.Services.AddAutoMapper(typeof(UserProfile));
 
 var app = builder.Build();
 
@@ -47,6 +68,7 @@ app.UseCors(opt =>
 });
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
